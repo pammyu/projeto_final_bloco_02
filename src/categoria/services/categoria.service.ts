@@ -49,8 +49,41 @@ export class CategoriaService {
   }
 
   async delete(id: number): Promise<DeleteResult> {
-    await this.findById(id);
+    const categoria = await this.findById(id);
 
+    if (categoria.emEstoque) {
+      throw new HttpException(
+        'Categoria não pode ser deletada pois possui produtos em estoque!',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     return await this.categoriaRepository.delete(id);
+  }
+
+  async findByEstoque(status: string) {
+    const emEstoque = status === 'true';
+
+    const categorias = await this.categoriaRepository.find({
+      where: {
+        emEstoque,
+      },
+    });
+
+    if (categorias.length === 0) {
+      throw new HttpException(
+        `Não existem categorias ${emEstoque ? 'em estoque' : 'fora de estoque'} no momento!`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return categorias;
+  }
+
+  async toggleEstoque(id: number): Promise<Categoria> {
+    const categoria = await this.findById(id);
+
+    categoria.emEstoque = !categoria.emEstoque;
+
+    return this.categoriaRepository.save(categoria);
   }
 }

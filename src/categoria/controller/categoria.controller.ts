@@ -52,4 +52,16 @@ export class CategoriaController {
   delete(@Param('id', ParseIntPipe) id: number) {
     return this.categoriaService.delete(id);
   }
+
+  @Get('/estoque/:status')
+  @HttpCode(HttpStatus.OK)
+  findByEstoque(@Param('status') status: string) {
+    return this.categoriaService.findByEstoque(status);
+  }
+
+  @Put('/toggle-estoque/:id')
+  @HttpCode(HttpStatus.OK)
+  toggleEstoque(@Param('id') id: number) {
+    return this.categoriaService.toggleEstoque(id);
+  }
 }
